@@ -1,66 +1,48 @@
 # Contributing to Career-Ops
 
-Thanks for your interest in contributing! Career-Ops is built with Claude Code, and you can use it for development too.
+Thanks for contributing. Career-Ops is now documented and operated as a Codex-first repo.
 
-## Before Submitting a PR
+## Before Opening a PR
 
-**Please open an issue first to discuss the change you'd like to make.** This helps us align on direction before you invest time coding.
+Open an issue first so the change can be discussed before implementation. PRs that bypass that step may be closed if they do not fit the repo’s direction.
 
-PRs without a corresponding issue may be closed if they don't align with the project's architecture or goals.
+## Good PRs
 
-### What makes a good PR
-- Fixes a bug listed in Issues
-- Addresses a feature request that was discussed and approved
-- Includes a clear description of what changed and why
-- Follows the existing code style and project philosophy (simple, minimal, quality over quantity)
+- fix an agreed bug
+- improve Codex-first docs or setup
+- add or improve translated modes
+- improve the scanner, batch runner, or dashboard without changing the repo’s core quality-over-quantity philosophy
+- keep changes minimal and well explained
 
-## Quick Start
+## Development Flow
 
-1. Open an issue to discuss your idea
-2. Fork the repo
-3. Create a branch (`git checkout -b feature/my-feature`)
-4. Make your changes
-5. Test with a fresh clone (see [docs/SETUP.md](docs/SETUP.md))
-6. Commit and push
-7. Open a Pull Request referencing the issue
-
-## What to Contribute
-
-**Good first contributions:**
-- Add companies to `templates/portals.example.yml`
-- Translate modes to other languages
-- Improve documentation
-- Add example CVs for different roles (in `examples/`)
-- Report bugs via [Issues](https://github.com/santifer/career-ops/issues)
-
-**Bigger contributions:**
-- New evaluation dimensions or scoring logic
-- Dashboard TUI features (in `dashboard/`)
-- New skill modes (in `modes/`)
-- Script improvements (`.mjs` utilities)
+1. open an issue
+2. fork the repo
+3. create a branch
+4. make the change
+5. test with a fresh clone and a Codex-based setup
+6. open a PR that references the issue
 
 ## Guidelines
 
-- Keep modes language-agnostic when possible (Claude handles both EN and ES)
-- Scripts should handle missing files gracefully (check `existsSync` before `readFileSync`)
-- Dashboard changes require `go build` — test with real data before submitting
-- Don't commit personal data (cv.md, profile.yml, applications.md, reports/)
+- keep user data out of commits (`cv.md`, `config/profile.yml`, `modes/_profile.md`, `data/`, `reports/`, `output/`)
+- keep user-specific behavior in the profile layer, not in `modes/_shared.md`
+- keep docs, `AGENTS.md`, and `.agents/skills/` aligned
+- scripts should handle missing files gracefully
+- dashboard changes should be validated with `go build`
 
-## Development
+## Useful Commands
 
 ```bash
-# Scripts
-npm run doctor                # Setup validation
-node verify-pipeline.mjs     # Health check
-node cv-sync-check.mjs        # Config check
-
-# Dashboard
-cd dashboard && go build -o career-dashboard .
-./career-dashboard --path .
+npm run doctor
+node cv-sync-check.mjs
+node verify-pipeline.mjs
+node merge-tracker.mjs
+bash batch/batch-runner.sh --help
 ```
 
 ## Need Help?
 
 - [Open an issue](https://github.com/santifer/career-ops/issues)
-- [Read the architecture docs](docs/ARCHITECTURE.md)
-- Built by [santifer](https://santifer.io)
+- [Read the setup guide](docs/SETUP.md)
+- [Read the architecture guide](docs/ARCHITECTURE.md)

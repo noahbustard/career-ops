@@ -1,80 +1,84 @@
 # Setup Guide
 
+README.md is the shortest path. This page adds the exact file setup and Codex usage details.
+
 ## Prerequisites
 
-- [Claude Code](https://claude.ai/code) installed and configured
-- Node.js 18+ (for PDF generation and utility scripts)
-- (Optional) Go 1.21+ (for the dashboard TUI)
+- Codex CLI installed and signed in
+- Node.js 18+
+- `npx playwright install chromium`
+- Go 1.21+ only if you want the optional dashboard TUI
 
-## Quick Start (5 steps)
+## User-Layer Setup
 
-### 1. Clone and install
-
-```bash
-git clone https://github.com/santifer/career-ops.git
-cd career-ops
-npm install
-npx playwright install chromium   # Required for PDF generation
-```
-
-### 2. Configure your profile
+Copy the user templates:
 
 ```bash
 cp config/profile.example.yml config/profile.yml
-```
-
-Edit `config/profile.yml` with your personal details: name, email, target roles, narrative, proof points.
-
-### 3. Add your CV
-
-Create `cv.md` in the project root with your full CV in markdown format. This is the source of truth for all evaluations and PDFs.
-
-(Optional) Create `article-digest.md` with proof points from your portfolio projects/articles.
-
-### 4. Configure portals
-
-```bash
+cp modes/_profile.template.md modes/_profile.md
 cp templates/portals.example.yml portals.yml
 ```
 
-Edit `portals.yml`:
-- Update `title_filter.positive` with keywords matching your target roles
-- Add companies you want to track in `tracked_companies`
-- Customize `search_queries` for your preferred job boards
+Then add:
+- `cv.md`
+- optional `article-digest.md`
 
-### 5. Start using
+Recommended order:
+1. fill `config/profile.yml`
+2. add `cv.md`
+3. update `modes/_profile.md` with your own positioning
+4. customize `portals.yml`
 
-Open Claude Code in this directory:
-
-```bash
-claude
-```
-
-Then paste a job offer URL or description. Career-ops will automatically evaluate it, generate a report, create a tailored PDF, and track it.
-
-## Available Commands
-
-| Action | How |
-|--------|-----|
-| Evaluate an offer | Paste a URL or JD text |
-| Search for offers | `/career-ops scan` |
-| Process pending URLs | `/career-ops pipeline` |
-| Generate a PDF | `/career-ops pdf` |
-| Batch evaluate | `/career-ops batch` |
-| Check tracker status | `/career-ops tracker` |
-| Fill application form | `/career-ops apply` |
-
-## Verify Setup
+## Validate
 
 ```bash
-node cv-sync-check.mjs      # Check configuration
-node verify-pipeline.mjs     # Check pipeline integrity
+npm run doctor
+node cv-sync-check.mjs
+node verify-pipeline.mjs
 ```
 
-## Build Dashboard (Optional)
+## Start Codex
+
+Interactive:
+
+```bash
+cd /path/to/career-ops
+codex
+```
+
+One-shot:
+
+```bash
+codex -C /path/to/career-ops "Use the career-ops-auto-pipeline skill and evaluate this job URL: https://example.com/jobs/123"
+```
+
+## Core Workflows
+
+| Workflow | Codex prompt |
+|----------|--------------|
+| Full evaluation | `Use the career-ops-auto-pipeline skill. Evaluate this JD end to end: ...` |
+| Scan portals | `Use the career-ops-scan skill. Scan portals.yml and update data/pipeline.md.` |
+| Process pending URLs | `Use the career-ops-pipeline skill. Process data/pipeline.md.` |
+| Generate PDF | `Use the career-ops-pdf skill. Generate an ATS-optimized PDF for this JD: ...` |
+| Tracker | `Use the career-ops-tracker skill. Show tracker stats.` |
+| Batch | `Use the career-ops-batch skill. Run the batch workflow.` |
+
+## Recurring Runs
+
+For repeated scans, do one of these:
+- create a Codex app automation that opens this repo and uses `career-ops-scan`
+- schedule `codex exec` from cron or another task runner
+
+Example:
+
+```bash
+cd /path/to/career-ops && codex exec --dangerously-bypass-approvals-and-sandbox --search "Use the career-ops-scan skill. Read AGENTS.md, scan portals.yml, update data/scan-history.tsv and data/pipeline.md, then summarize the changes."
+```
+
+## Dashboard
 
 ```bash
 cd dashboard
 go build -o career-dashboard .
-./career-dashboard            # Opens TUI pipeline viewer
+./career-dashboard
 ```

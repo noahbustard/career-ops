@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# career-ops batch runner — standalone orchestrator for claude -p workers
-# Reads batch-input.tsv, delegates each offer to a claude -p worker,
+# career-ops batch runner — standalone orchestrator for codex exec workers
+# Reads batch-input.tsv, delegates each offer to a codex exec worker,
 # tracks state in batch-state.tsv for resumability.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -28,8 +28,8 @@ MAX_RETRIES=2
 
 usage() {
   cat <<'USAGE'
-career-ops batch runner — process job offers in batch via claude -p workers
-Uses your default Claude model (Claude Max subscription).
+career-ops batch runner — process job offers in batch via codex exec workers
+Uses your default Codex model/profile unless you override it in your local Codex config.
 
 Usage: batch-runner.sh [OPTIONS]
 
@@ -114,12 +114,23 @@ check_prerequisites() {
     exit 1
   fi
 
-  if ! command -v claude &>/dev/null; then
-    echo "ERROR: 'claude' CLI not found in PATH."
+  if ! command -v codex &>/dev/null; then
+    echo "ERROR: 'codex' CLI not found in PATH."
     exit 1
   fi
 
   mkdir -p "$LOGS_DIR" "$TRACKER_DIR" "$REPORTS_DIR"
+}
+
+prefetch_jd() {
+  local url="$1" jd_file="$2"
+  : > "$jd_file"
+
+  if command -v curl &>/dev/null; then
+    curl -fsSL --max-time 30 \
+      -A 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
+      "$url" > "$jd_file" 2>/dev/null || true
+  fi
 }
 
 # Initialize state file if it doesn't exist
@@ -285,6 +296,8 @@ process_offer() {
 
   echo "--- Processing offer #$id: $url (report $report_num, attempt $((retries + 1)))"
 
+  prefetch_jd "$url" "$jd_file"
+
   # Build the prompt with placeholders replaced
   local prompt
   prompt="Procesa esta oferta de empleo. Ejecuta el pipeline completo: evaluación A-F + report .md + PDF + tracker line."
@@ -306,16 +319,21 @@ process_offer() {
     -e "s|{{ID}}|${id}|g" \
     "$PROMPT_FILE" > "$resolved_prompt"
 
-  # Launch claude -p worker (uses default model from Claude Max subscription)
+  # Launch codex exec worker with the resolved prompt plus invocation data.
   local exit_code=0
-  claude -p \
-    --dangerously-skip-permissions \
-    --append-system-prompt-file "$resolved_prompt" \
-    "$prompt" \
+  {
+    cat "$resolved_prompt"
+    printf '\n\n## Invocation data\n%s\n' "$prompt"
+  } | codex exec \
+    --dangerously-bypass-approvals-and-sandbox \
+    --search \
+    -C "$PROJECT_DIR" \
+    - \
     > "$log_file" 2>&1 || exit_code=$?
 
   # Cleanup resolved prompt
   rm -f "$resolved_prompt"
+  rm -f "$jd_file"
 
   local completed_at
   completed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)

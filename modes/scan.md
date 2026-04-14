@@ -4,15 +4,7 @@ Escanea portales de empleo configurados, filtra por relevancia de título, y añ
 
 ## Ejecución recomendada
 
-Ejecutar como subagente para no consumir contexto del main:
-
-```
-Agent(
-    subagent_type="general-purpose",
-    prompt="[contenido de este archivo + datos específicos]",
-    run_in_background=True
-)
-```
+Si ayuda a ahorrar contexto o tiempo, delegar este workflow a un subagente. Si no hace falta, ejecutarlo localmente con los mismos archivos cargados.
 
 ## Configuración
 
@@ -159,7 +151,7 @@ Nuevas añadidas a pipeline.md: N
   + {company} | {title} | {query_name}
   ...
 
-→ Ejecuta /career-ops pipeline para evaluar las nuevas ofertas.
+→ Ejecuta después el workflow `pipeline` para evaluar las nuevas ofertas.
 ```
 
 ## Gestión de careers_url

@@ -1,84 +1,41 @@
 ---
 name: career-ops
-description: AI job search command center -- evaluate offers, generate CVs, scan portals, track applications
-user_invocable: true
-args: mode
+description: General Codex entrypoint for career-ops. Route plain-language job-search requests to the correct workflow and mode files.
 ---
 
 # career-ops -- Router
 
-This file mirrors `.claude/skills/career-ops/SKILL.md` for Codex. Preserve the original routing/content, but do not implement `/career-ops` as a real Codex slash command. Infer the requested mode from the user's plain-language request, an explicit mode name, or a pasted JD/URL.
+Use this skill when the user asks what career-ops can do, pastes a JD or job URL without naming a workflow, or gives a plain-language request that needs routing.
 
-## Mode Routing
+## Route the Request
 
-Determine the mode from `{{mode}}`:
+- pasted JD text or a job URL with no explicit mode -> `career-ops-auto-pipeline`
+- scan new roles -> `career-ops-scan`
+- process the inbox in `data/pipeline.md` -> `career-ops-pipeline`
+- generate a tailored CV PDF -> `career-ops-pdf`
+- inspect or update the tracker -> `career-ops-tracker`
+- prepare or run batch processing -> `career-ops-batch`
+- evaluate only -> load `modes/oferta.md`
+- compare offers -> load `modes/ofertas.md`
+- LinkedIn outreach -> load `modes/contacto.md`
+- deep company research -> load `modes/deep.md`
+- training/course evaluation -> load `modes/training.md`
+- project evaluation -> load `modes/project.md`
+- live application help -> load `modes/apply.md`
 
-| Input | Mode |
-|-------|------|
-| (empty / no args) | `discovery` -- Show command menu |
-| JD text or URL (no sub-command) | **`auto-pipeline`** |
-| `oferta` | `oferta` |
-| `ofertas` | `ofertas` |
-| `contacto` | `contacto` |
-| `deep` | `deep` |
-| `pdf` | `pdf` |
-| `training` | `training` |
-| `project` | `project` |
-| `tracker` | `tracker` |
-| `pipeline` | `pipeline` |
-| `apply` | `apply` |
-| `scan` | `scan` |
-| `batch` | `batch` |
+## Shared Loading Rules
 
-**Auto-pipeline detection:** If `{{mode}}` is not a known sub-command AND contains JD text (keywords: "responsibilities", "requirements", "qualifications", "about the role", "we're looking for", company name + role) or a URL to a JD, execute `auto-pipeline`.
+1. Read `AGENTS.md`.
+2. Read `config/profile.yml` if it exists.
+3. Read `modes/_profile.md` if it exists.
+4. Resolve `language.modes_dir` from `config/profile.yml` when present.
+5. Use translated files from that directory when they exist; otherwise fall back to `modes/`.
 
-If `{{mode}}` is not a sub-command AND doesn't look like a JD, show discovery.
+## Mode Loading
 
----
+- Shared plus mode file:
+  `auto-pipeline`, `oferta`, `ofertas`, `contacto`, `apply`, `pipeline`, `scan`, `batch`, `pdf`
+- Mode file only:
+  `tracker`, `deep`, `training`, `project`
 
-## Discovery Mode (no arguments)
-
-If the user asks what career-ops can do, summarize the following legacy Claude command menu as reference. In Codex, treat these as plain-language mode names, not slash commands:
-
-```
-career-ops -- Command Center
-
-Available commands:
-  /career-ops {JD}      → AUTO-PIPELINE: evaluate + report + PDF + tracker (paste text or URL)
-  /career-ops pipeline  → Process pending URLs from inbox (data/pipeline.md)
-  /career-ops oferta    → Evaluation only A-F (no auto PDF)
-  /career-ops ofertas   → Compare and rank multiple offers
-  /career-ops contacto  → LinkedIn power move: find contacts + draft message
-  /career-ops deep      → Deep research prompt about company
-  /career-ops pdf       → PDF only, ATS-optimized CV
-  /career-ops training  → Evaluate course/cert against North Star
-  /career-ops project   → Evaluate portfolio project idea
-  /career-ops tracker   → Application status overview
-  /career-ops apply     → Live application assistant (reads form + generates answers)
-  /career-ops scan      → Scan portals and discover new offers
-  /career-ops batch     → Batch processing with parallel workers
-
-Inbox: add URLs to data/pipeline.md → /career-ops pipeline
-Or paste a JD directly to run the full pipeline.
-```
-
----
-
-## Context Loading by Mode
-
-After determining the mode, load the necessary files before executing:
-
-### Modes that require `_shared.md` + their mode file:
-Read `modes/_shared.md` + `modes/{mode}.md`
-
-Applies to: `auto-pipeline`, `oferta`, `ofertas`, `pdf`, `contacto`, `apply`, `pipeline`, `scan`, `batch`
-
-### Standalone modes (only their mode file):
-Read `modes/{mode}.md`
-
-Applies to: `tracker`, `deep`, `training`, `project`
-
-### Modes delegated to subagent:
-For `scan`, `apply` (with Playwright), and `pipeline` (3+ URLs): use a Codex subagent only when it materially helps. Pass the content of `_shared.md` + `modes/{mode}.md` plus invocation-specific data into that delegated task. If delegation is unnecessary, execute locally with the same loaded files.
-
-Execute the instructions from the loaded mode file.
+When the user simply wants the available workflows, summarize the skill names and the matching plain-language requests instead of showing slash commands.

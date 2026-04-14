@@ -1,76 +1,83 @@
 # Customization Guide
 
-## Profile (config/profile.yml)
+Career-Ops is designed to be customized in-place. The important distinction is where to put personal data versus repo-wide behavior.
 
-This is the single source of truth for your identity. All modes read from here.
+## User-Specific Customization
 
-Key sections:
-- **candidate**: Name, email, phone, location, LinkedIn, portfolio
-- **target_roles**: Your North Star roles and archetypes
-- **narrative**: Your headline, exit story, superpowers, proof points
-- **compensation**: Target range, minimum, currency
-- **location**: Country, timezone, visa status, on-site availability
+Put personal customization in:
+- `config/profile.yml`
+- `modes/_profile.md`
+- `article-digest.md`
+- `portals.yml`
 
-## Target Roles (modes/_shared.md)
+Use those files for:
+- name, email, location, timezone, compensation targets
+- target roles and deal-breakers
+- proof points, narrative, exit story, positioning
+- user-specific archetypes and framing
+- tracked companies and search keywords
 
-The archetype table in `_shared.md` determines how offers are scored and CVs are framed. Edit the table to match YOUR career targets:
+Do not put user-specific content into `modes/_shared.md`.
 
-```markdown
-| Archetype | Thematic axes | What they buy |
-|-----------|---------------|---------------|
-| **Your Role 1** | key skills | what they need |
-| **Your Role 2** | key skills | what they need |
-```
+## Repo-Wide Customization
 
-Also update the "Adaptive Framing" table to map YOUR specific projects to each archetype.
+Use repo-wide files only when you want to change the system for every user of the repo:
+- `modes/_shared.md`
+- the individual mode files under `modes/`
+- `batch/batch-prompt.md`
+- `templates/cv-template.html`
+- `templates/states.yml`
 
-## Portals (portals.yml)
+## Profile (`config/profile.yml`)
 
-Copy from `templates/portals.example.yml` and customize:
+This is the source of truth for identity and search intent.
 
-1. **title_filter.positive**: Keywords matching your target roles
-2. **title_filter.negative**: Tech stacks or domains to exclude
-3. **search_queries**: WebSearch queries for job boards (Ashby, Greenhouse, Lever)
-4. **tracked_companies**: Companies to check directly
+Typical sections:
+- candidate identity and links
+- target roles
+- narrative and proof points
+- compensation
+- location and work authorization
+- language preferences such as `language.modes_dir`
 
-## CV Template (templates/cv-template.html)
+## Personal Framing (`modes/_profile.md`)
 
-The HTML template uses these design tokens:
-- **Fonts**: Space Grotesk (headings) + DM Sans (body) -- self-hosted in `fonts/`
-- **Colors**: Cyan primary (`hsl(187,74%,32%)`) + Purple accent (`hsl(270,70%,45%)`)
-- **Layout**: Single-column, ATS-optimized
+Use this file for user-specific prompting that should survive repo updates:
+- your own archetype tweaks
+- project framing
+- interview positioning
+- negotiation preferences
+- things to emphasize or avoid
 
-To customize fonts/colors, edit the CSS in the template. Update font files in `fonts/` if switching fonts.
+## Portals (`portals.yml`)
 
-## Negotiation Scripts (modes/_shared.md)
+Customize:
+1. `title_filter.positive`
+2. `title_filter.negative`
+3. `search_queries`
+4. `tracked_companies`
 
-The negotiation section provides frameworks for salary discussions. Replace the example scripts with your own:
-- Target ranges
-- Geographic arbitrage strategy
-- Pushback responses
+## CV Template (`templates/cv-template.html`)
 
-## Hooks (Optional)
+The default PDF design uses:
+- Space Grotesk for headings
+- DM Sans for body text
+- a single-column ATS-friendly layout
 
-Career-ops can integrate with external systems via Claude Code hooks. Example hooks:
+Edit the template CSS or font files if you want a different visual style.
 
-```json
-{
-  "hooks": {
-    "SessionStart": [{
-      "hooks": [{
-        "type": "command",
-        "command": "echo 'Career-ops session started'"
-      }]
-    }]
-  }
-}
-```
+## Canonical States (`templates/states.yml`)
 
-Save hooks in `.claude/settings.json`.
-
-## States (templates/states.yml)
-
-The canonical states rarely need changing. If you add new states, update:
+If you change tracker states, update all consumers together:
 1. `templates/states.yml`
-2. `normalize-statuses.mjs` (alias mappings)
-3. `modes/_shared.md` (any references)
+2. `normalize-statuses.mjs`
+3. `merge-tracker.mjs`
+4. any mode text that references statuses
+
+## Codex Runtime Files
+
+The Codex-facing runtime layer lives in:
+- `AGENTS.md`
+- `.agents/skills/`
+
+These files should stay focused on discovery and execution. Personalization belongs in the user-layer files above.

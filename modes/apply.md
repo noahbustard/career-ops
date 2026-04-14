@@ -4,7 +4,7 @@ Modo interactivo para cuando el candidato está rellenando un formulario de apli
 
 ## Requisitos
 
-- **Mejor con Playwright visible**: En modo visible, el candidato ve el navegador y Claude puede interactuar con la página.
+- **Mejor con Playwright visible**: En modo visible, el candidato ve el navegador y Codex puede interactuar con la página.
 - **Sin Playwright**: el candidato comparte un screenshot o pega las preguntas manualmente.
 
 ## Workflow
@@ -97,7 +97,7 @@ Notas:
 Si el candidato confirma que envió la aplicación:
 1. Actualizar estado en `applications.md` de "Evaluada" a "Aplicado"
 2. Actualizar Section G del report con las respuestas finales
-3. Sugerir siguiente paso: `/career-ops contacto` para LinkedIn outreach
+3. Sugerir siguiente paso: usar el modo `contacto` para LinkedIn outreach
 
 ## Scroll handling
 

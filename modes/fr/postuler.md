@@ -4,7 +4,7 @@ Mode interactif pour le moment ou le candidat remplit un formulaire de candidatu
 
 ## Prerequis
 
-- **Ideal avec Playwright visible** : En mode visible, le candidat voit le navigateur et Claude peut interagir avec la page.
+- **Ideal avec Playwright visible** : En mode visible, le candidat voit le navigateur et Codex peut interagir avec la page.
 - **Sans Playwright** : le candidat partage une capture d'ecran ou colle les questions manuellement.
 
 ## Workflow
@@ -104,7 +104,7 @@ Notes :
 Si le candidat confirme que la candidature est envoyee :
 1. Mettre a jour le statut dans `applications.md` de "Evaluated" a "Applied"
 2. Mettre a jour le Bloc G du report avec les reponses finales
-3. Suggerer l'etape suivante : `/career-ops contacto` pour du LinkedIn outreach vers le hiring manager
+3. Suggerer l'etape suivante : utiliser le mode `contacto` pour du LinkedIn outreach vers le hiring manager
 
 ## Gestion du defilement
 

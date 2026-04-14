@@ -4,7 +4,7 @@ Interaktiver Modus für den Moment, in dem der Kandidat in Chrome ein Bewerbungs
 
 ## Voraussetzungen
 
-- **Empfohlen mit sichtbarem Playwright**: Im sichtbaren Modus sieht der Kandidat den Browser, und Claude kann mit der Seite interagieren.
+- **Empfohlen mit sichtbarem Playwright**: Im sichtbaren Modus sieht der Kandidat den Browser, und Codex kann mit der Seite interagieren.
 - **Ohne Playwright**: Der Kandidat teilt einen Screenshot oder fügt die Fragen manuell ein.
 
 ## Workflow
@@ -104,7 +104,7 @@ Hinweise:
 Wenn der Kandidat bestätigt, dass die Bewerbung raus ist:
 1. Status in `applications.md` von "Evaluated" auf "Applied" setzen
 2. Block G im Report mit den finalen Antworten aktualisieren
-3. Nächsten Schritt vorschlagen: `/career-ops contacto` für LinkedIn-Outreach an den Personalleiter / Hiring Manager
+3. Nächsten Schritt vorschlagen: den Modus `contacto` für LinkedIn-Outreach an den Personalleiter / Hiring Manager nutzen
 
 ## Scroll-Handling
 

@@ -8,6 +8,7 @@
 import { existsSync, mkdirSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { spawnSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = __dirname;
@@ -38,6 +39,21 @@ function checkDependencies() {
     pass: false,
     label: 'Dependencies not installed',
     fix: 'Run: npm install',
+  };
+}
+
+function checkCodex() {
+  const result = spawnSync('codex', ['--version'], { stdio: 'ignore' });
+  if (result.status === 0) {
+    return { pass: true, label: 'Codex CLI installed' };
+  }
+  return {
+    pass: false,
+    label: 'Codex CLI not found',
+    fix: [
+      'Install Codex CLI: npm install -g @openai/codex',
+      'Or install the desktop app/CLI from https://developers.openai.com/codex',
+    ],
   };
 }
 
@@ -86,6 +102,20 @@ function checkProfile() {
     fix: [
       'Run: cp config/profile.example.yml config/profile.yml',
       'Then edit it with your details',
+    ],
+  };
+}
+
+function checkProfileMode() {
+  if (existsSync(join(projectRoot, 'modes', '_profile.md'))) {
+    return { pass: true, label: 'modes/_profile.md found' };
+  }
+  return {
+    pass: false,
+    label: 'modes/_profile.md not found',
+    fix: [
+      'Run: cp modes/_profile.template.md modes/_profile.md',
+      'Then store your user-specific framing there',
     ],
   };
 }
@@ -155,10 +185,12 @@ async function main() {
 
   const checks = [
     checkNodeVersion(),
+    checkCodex(),
     checkDependencies(),
     await checkPlaywright(),
     checkCv(),
     checkProfile(),
+    checkProfileMode(),
     checkPortals(),
     checkFonts(),
     checkAutoDir('data'),
@@ -186,7 +218,7 @@ async function main() {
     console.log(`Result: ${failures} issue${failures === 1 ? '' : 's'} found. Fix them and run \`npm run doctor\` again.`);
     process.exit(1);
   } else {
-    console.log('Result: All checks passed. You\'re ready to go! Run `claude` to start.');
+    console.log('Result: All checks passed. You\'re ready to go! Run `codex` to start.');
     process.exit(0);
   }
 }
